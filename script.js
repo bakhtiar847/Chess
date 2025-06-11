@@ -19,6 +19,14 @@ let moves = [];
 let turn = 'w'; // 'w' for white, 'b' for black
 let inCheck = false, checkmated = false;
 
+// Touch drag state (for mobile drag-to-move)
+let touchDragging = false;
+let touchDragStart = null;
+let touchDragPiece = null;
+
+// Desktop drag state
+let dragging = false, dragStart = null, dragPiece = null;
+
 function isWhite(piece) { return /^[KQRBNP]$/.test(piece); }
 function isBlack(piece) { return /^[kqrbnp]$/.test(piece); }
 function otherTurn(t) { return t === 'w' ? 'b' : 'w'; }
@@ -73,7 +81,7 @@ function getMoves(bd, row, col, onlyLegal=true) {
       }
       break;
     case 'n': // Knight
-      for (let [dr, dc] of [[-2,-1],[-2,1],[2,-1],[2,1],[-1,-2],[-1,2],[1,-2],[1,2]])
+      for (let [dr, dc] of [[-2,-1],[-2,1],[2,-1],[2,1],[-1,-2],[−1,2],[1,−2],[1,2]])
         addMove(row+dr, col+dc);
       break;
     case 'b': // Bishop
@@ -141,7 +149,6 @@ function isCheckmate(bd, color) {
 }
 
 // --- UI/UX rendering: Drag/Drop, Tap, Highlights ---
-let dragging = false, dragStart = null, dragPiece = null;
 
 function createBoard() {
   const boardDiv = document.getElementById('chessboard');
@@ -182,11 +189,16 @@ function createBoard() {
         dragStart = {row, col};
         dragPiece = piece;
         selected = {row, col};
+        if (e.dataTransfer) e.dataTransfer.setDragImage(square, 25, 25);
         createBoard();
       };
       square.ondragover = e => {
         if (!dragging) return;
         e.preventDefault();
+        square.classList.add("dragover");
+      };
+      square.ondragleave = e => {
+        square.classList.remove("dragover");
       };
       square.ondrop = e => {
         if (!dragging) return;
@@ -195,20 +207,46 @@ function createBoard() {
         dragging = false;
         dragStart = null;
         dragPiece = null;
+        square.classList.remove("dragover");
       };
 
-      // Mobile tap/tap
+      // Mobile drag-to-move (touch events)
       square.ontouchstart = e => {
-        e.preventDefault();
-        if (!selected && piece && pieceColor(piece) === turn && !checkmated) {
-          selected = {row, col};
-          createBoard();
-        } else if (selected) {
-          handleMove(selected.row, selected.col, row, col);
+        // If starting a drag from the user's own piece
+        if (!piece || pieceColor(piece) !== turn || checkmated) {
+          // Fallback: tap-to-move for destination
+          if (selected) {
+            handleMove(selected.row, selected.col, row, col);
+          }
+          return;
         }
+        e.preventDefault();
+        touchDragging = true;
+        touchDragStart = {row, col};
+        touchDragPiece = piece;
+        selected = {row, col};
+      };
+      square.ontouchmove = e => {
+        if (!touchDragging) return;
+        e.preventDefault();
+        // (Optional: add floating visual feedback here)
+      };
+      square.ontouchend = e => {
+        if (!touchDragging) return;
+        e.preventDefault();
+        const touch = e.changedTouches[0];
+        const targetElem = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (targetElem && targetElem.classList.contains('square')) {
+          const targetRow = parseInt(targetElem.dataset.row);
+          const targetCol = parseInt(targetElem.dataset.col);
+          handleMove(touchDragStart.row, touchDragStart.col, targetRow, targetCol);
+        }
+        touchDragging = false;
+        touchDragStart = null;
+        touchDragPiece = null;
       };
 
-      // Desktop click
+      // Tap-to-move (always available, also fallback)
       square.onclick = () => {
         if (!selected && piece && pieceColor(piece) === turn && !checkmated) {
           selected = {row, col};
