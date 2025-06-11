@@ -1,0 +1,97 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f9f9f9;
+  color: #222;
+}
+
+.container {
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 1em;
+  background: #fff;
+  border-radius: 1em;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 0.5em;
+}
+
+.timers {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1em;
+}
+
+.timers div {
+  text-align: center;
+}
+
+#chessboard {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  width: 100vw;
+  max-width: 360px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto 1em auto;
+  border: 2px solid #333;
+  border-radius: 0.5em;
+  overflow: hidden;
+}
+
+.square {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  font-size: 1.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.white-square {
+  background: #f0d9b5;
+}
+
+.black-square {
+  background: #b58863;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5em;
+  margin-top: 1em;
+}
+
+button {
+  flex: 1;
+  padding: 0.75em 0.5em;
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 0.5em;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover, button:active {
+  background: #555;
+}
+
+@media (max-width: 430px) {
+  .container {
+    max-width: 98vw;
+    padding: 0.5em;
+  }
+  #chessboard {
+    max-width: 98vw;
+  }
+  .controls button {
+    font-size: 0.92em;
+  }
+}
