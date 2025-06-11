@@ -81,7 +81,7 @@ function getMoves(bd, row, col, onlyLegal=true) {
       }
       break;
     case 'n': // Knight
-      for (let [dr, dc] of [[-2,-1],[-2,1],[2,-1],[2,1],[-1,-2],[−1,2],[1,−2],[1,2]])
+      for (let [dr, dc] of [[-2,-1],[-2,1],[2,-1],[2,1],[-1,-2],[-1,2],[1,-2],[1,2]])
         addMove(row+dr, col+dc);
       break;
     case 'b': // Bishop
